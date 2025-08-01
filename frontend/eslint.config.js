@@ -24,6 +24,8 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // React Compiler rule (correct according to official docs)
+      'react-hooks/react-compiler': 'error',
       // Disable formatting rules that conflict with Prettier
       indent: 'off',
       quotes: 'off',
