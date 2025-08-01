@@ -18,43 +18,40 @@ const RestaurantForm = () => {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+    //initial type of this is success? 
+    //show is automatically set as false?
 
-    // Show toast notification
+
     const showToast = (message, type = 'success') => {
         setToast({ show: true, message, type });
     };
-
-    // Hide toast notification
     const hideToast = () => {
         setToast({ show: false, message: '', type: 'success' });
     };
 
-    // HANDLE CHANGE
+    // HANDLE CHANGE OF FORM
     const updateRestaurant = useCallback((field, value) => {
         setRestaurant(prev => ({ ...prev, [field]: value }));
         //IF THERE ARE ERRORS ---> CLEAR ALL FIELDS
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
         }
-    }, [errors]);
+    }, [errors]); //re-render when the type of error is a different type!
 
-    // Form validation
     const validateForm = () => {
         const newErrors = {};
-        
+        const rating = parseFloat(restaurant.rating)
         if (!restaurant.name.trim()) newErrors.name = 'Restaurant name is required';
         if (!restaurant.type) newErrors.type = 'Cuisine type is required';
         if (!restaurant.location.trim()) newErrors.location = 'Location is required';
-        
-        if (restaurant.rating && (restaurant.rating < 0 || restaurant.rating > 5)) {
+        if (!restaurant.rating.trim()) newErrors.rating = 'Rating is required';
+        if (rating && (rating < 0 || rating > 5)) {
             newErrors.rating = 'Rating must be between 0 and 5';
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
-    //SUBMIT FORM
     const handleSubmitForm = async (e) => {
         e.preventDefault()
         if (!validateForm()) return;
@@ -63,11 +60,9 @@ const RestaurantForm = () => {
         try { 
             await restaurantAPI.create(restaurant);
             showToast(SUCCESS_MESSAGES.CREATED, 'success');
-            
-            // Navigate after a short delay to show success message
             setTimeout(() => {
                 navigate('/');
-            }, 1000);
+            }, 1000); //automatically move to main page if its more than 1000s? 
         }
         catch(error){  
             const errorMessage = error.message || ERROR_MESSAGES.UNKNOWN_ERROR;
@@ -79,7 +74,6 @@ const RestaurantForm = () => {
         }
     }
     
-    //HANDLE IMAGE UPLOAD
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -89,7 +83,6 @@ const RestaurantForm = () => {
         }
     };
     
-    //HANDLE CANCEL FORM
     const handleCancel = () => {
         navigate('/')
     };

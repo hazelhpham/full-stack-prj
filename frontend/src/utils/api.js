@@ -1,7 +1,6 @@
 // API Configuration
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/restaurants';
 
-// Standardized error messages
 const ERROR_MESSAGES = {
   NETWORK_ERROR: 'Network error. Please check your connection.',
   SERVER_ERROR: 'Server error. Please try again later.',
@@ -10,7 +9,6 @@ const ERROR_MESSAGES = {
   UNKNOWN_ERROR: 'An unexpected error occurred.'
 };
 
-// Success messages
 const SUCCESS_MESSAGES = {
   CREATED: 'Restaurant created successfully!',
   UPDATED: 'Restaurant updated successfully!',
@@ -18,7 +16,6 @@ const SUCCESS_MESSAGES = {
   RATING_UPDATED: 'Rating updated successfully!'
 };
 
-// API helper functions
 const apiRequest = async (endpoint, options = {}) => {
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, {

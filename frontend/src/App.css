@@ -31,18 +31,20 @@ h1 {
 }
 
 .restaurant-card {
-  background: white;
-  border-radius: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
+  backdrop-filter: blur(10px);
 }
 
 .restaurant-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12), 0 12px 24px rgba(0, 0, 0, 0.06);
+  border-color: rgba(102, 126, 234, 0.3);
 }
 
 .card-header {
@@ -415,25 +417,30 @@ h1 {
 
 /* Search Input Styling */
 .search-input {
-  width: 100%;
-  max-width: 500px;
-  padding: 14px 16px;
+  width: 85%;
+  max-width: 510px;
+  padding: 18px 24px;
   border: 2px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 16px;
   font-size: 16px;
-  transition: all 0.2s ease;
-  background: #f8fafc;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   color: #374151;
   box-sizing: border-box;
-  margin: 0 auto 32px auto;
+  margin: 0 auto 40px auto;
   display: block;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  position: relative;
+  left: -7.5%;
 }
 
 .search-input:focus {
   outline: none;
   border-color: #667eea;
   background: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15), 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
 }
 
 .search-input::placeholder {

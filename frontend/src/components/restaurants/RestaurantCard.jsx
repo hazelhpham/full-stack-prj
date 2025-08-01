@@ -2,15 +2,14 @@ import React, { useState } from 'react'
 import {renderStars} from '../../utils/rating'
 
 const RestaurantCard = ({ name, type, image, location, rating, description, priceRange, onEdit, onDelete }) => {
-  const [showMenu, setShowMenu] = useState(false);
-
+  const [showCard, setShowCard] = useState(false);
   const handleEdit = () => {
-    setShowMenu(false);
+    setShowCard(prev => !prev);
     onEdit();
   };
 
   const handleDelete = () => {
-    setShowMenu(false);
+    setShowCard(false);
     onDelete();
   };
 
@@ -21,11 +20,11 @@ const RestaurantCard = ({ name, type, image, location, rating, description, pric
         <div className="action-menu">
           <button 
             className="menu-button"
-            onClick={() => setShowMenu(!showMenu)}
+            onClick={() => setShowCard(!showCard)}
           >
             ⋮
           </button>
-          {showMenu && (
+          {showCard && (
             <div className="menu-dropdown">
               <button onClick={handleEdit} className="menu-item">
                 ✏️ Edit

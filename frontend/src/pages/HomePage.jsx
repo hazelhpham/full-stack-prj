@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import RestaurantList from "../components/restaurants/RestaurantList";
 import EditModal from "../components/EditModal";
 import DeleteModal from '../components/DeleteModal';
 import Toast from '../components/Toast';
-import { searchRestaurants } from "../utils/search";
+import { searchRestaurants, initializeSearchIndex } from "../utils/search";
 import { restaurantAPI, ERROR_MESSAGES, SUCCESS_MESSAGES } from "../utils/api";
 
 const HomePage = () => {
@@ -27,13 +27,9 @@ const HomePage = () => {
     restaurantName: ''
   });
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
-
-  // Show toast notification
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
   };
-
-  // Hide toast notification
   const hideToast = () => {
     setToast({ show: false, message: '', type: 'success' });
   };
@@ -44,8 +40,9 @@ const HomePage = () => {
       setLoading(true);
       setError(null);
       
-      const data = await restaurantAPI.getAll();
+      const data = await restaurantAPI.getAll(); //what is this? 
       setRestaurants(data);
+      initializeSearchIndex(data); //why do we immediately have search index here? 
     } catch (err) {
       const errorMessage = err.message || ERROR_MESSAGES.UNKNOWN_ERROR;
       setError(errorMessage);
@@ -54,7 +51,7 @@ const HomePage = () => {
       setLoading(false);
     }
   };
-
+  //THIS IS FOR EDITING THE RATING
   const updateRestaurantRating = async (restaurantId, newRating) => {
     try {
       const updatedRestaurant = await restaurantAPI.updateRating(restaurantId, newRating);
@@ -98,7 +95,7 @@ const HomePage = () => {
     setEditModal({
       show: true,
       restaurant,
-      newRating: restaurant.rating.toString(),
+      newRating: restaurant.rating.toString() || "",
       error: "",
     });
   };
@@ -127,6 +124,8 @@ const HomePage = () => {
   };
 
   const handleDeleteClick = (restaurantId, restaurantName) => {
+    setEditModal({ show: false, restaurant: null, newRating: '', error: '' });
+ 
     setDeleteModal({
       show: true,
       restaurantId,
@@ -139,9 +138,16 @@ const HomePage = () => {
   };
 
   // Computed values
-  const filteredRestaurants = searchInput 
-    ? searchRestaurants(restaurants, searchInput) 
-    : restaurants;
+//   const filteredRestaurants = searchInput 
+//     ? searchRestaurants(restaurants, searchInput) 
+//     : restaurants;
+
+    const filteredRestaurants = useMemo(() => {
+        if (!searchInput.trim()) {
+          return restaurants;
+        }
+        return searchRestaurants(restaurants, searchInput);
+      }, [restaurants, searchInput]); // Dependencies
 
   const hasSearchResults = filteredRestaurants.length > 0;
   const isSearching = searchInput.trim().length > 0;
