@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import RestaurantList from '../components/restaurants/RestaurantList';
@@ -179,17 +179,18 @@ const HomePageContent = () => {
     setSortValue(newSortValue);
   };
 
-  const filteredAndSortedRestaurants = useMemo(() => {
-    // First filter by search
-    let result = restaurants;
-    if (searchInput.trim()) {
-      result = searchRestaurants(restaurants, searchInput);
-    }
+  let result = restaurants;
+  if (searchInput.trim()) {
+    result = searchRestaurants(restaurants, searchInput);
+  }
 
-    // Then sort the filtered results
-    const { sortBy, sortOrder } = parseSortValue(sortValue);
-    return sortRestaurants(result, sortBy, sortOrder);
-  }, [restaurants, searchInput, sortValue]);
+  // Then sort the filtered results
+  const { sortBy, sortOrder } = parseSortValue(sortValue);
+  const filteredAndSortedRestaurants = sortRestaurants(
+    result,
+    sortBy,
+    sortOrder
+  );
 
   const hasSearchResults = filteredAndSortedRestaurants.length > 0;
   const isSearching = searchInput.trim().length > 0;

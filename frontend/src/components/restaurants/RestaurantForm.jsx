@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   useCreateRestaurant,
@@ -35,17 +35,13 @@ const RestaurantForm = () => {
     setToast({ show: false, message: '', type: 'success' });
   };
 
-  const updateRestaurant = useCallback(
-    (field, value) => {
-      setRestaurant(prev => ({ ...prev, [field]: value }));
-      //IF THERE ARE ERRORS ---> CLEAR ALL FIELDS
-      if (errors[field]) {
-        setErrors(prev => ({ ...prev, [field]: '' }));
-      }
-    },
-    [errors]
-  ); //re-render when the type of error is a different type!
-  //This prevents the function from being recreated unnecessarily unless errors change.
+  const updateRestaurant = (field, value) => {
+    setRestaurant(prev => ({ ...prev, [field]: value }));
+    //IF THERE ARE ERRORS ---> CLEAR ALL FIELDS
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
