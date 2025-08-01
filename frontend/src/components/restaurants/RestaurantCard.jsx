@@ -1,7 +1,17 @@
-import React, { useState } from 'react'
-import {renderStars} from '../../utils/rating'
+import React, { useState } from 'react';
+import { renderStars } from '../../utils/rating';
 
-const RestaurantCard = ({ name, type, image, location, rating, description, priceRange, onEdit, onDelete }) => {
+const RestaurantCard = ({
+  name,
+  type,
+  image,
+  location,
+  rating,
+  description,
+  priceRange,
+  onEdit,
+  onDelete,
+}) => {
   const [showCard, setShowCard] = useState(false);
   const handleEdit = () => {
     setShowCard(prev => !prev);
@@ -18,7 +28,7 @@ const RestaurantCard = ({ name, type, image, location, rating, description, pric
       <div className="card-header">
         <img src={image} alt={name} className="restaurant-image" />
         <div className="action-menu">
-          <button 
+          <button
             className="menu-button"
             onClick={() => setShowCard(!showCard)}
           >
@@ -48,7 +58,7 @@ const RestaurantCard = ({ name, type, image, location, rating, description, pric
         <p className="price-range">{priceRange}</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export { RestaurantCard }
+export { RestaurantCard };

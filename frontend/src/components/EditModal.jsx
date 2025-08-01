@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const EditModal = ({ editModal, setEditModal, handleSaveRating }) => {
   return (
@@ -9,12 +9,12 @@ const EditModal = ({ editModal, setEditModal, handleSaveRating }) => {
           setEditModal({
             show: false,
             restaurant: null,
-            newRating: "",
-            error: "",
+            newRating: '',
+            error: '',
           })
         }
       >
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}> 
+        <div className="modal-content" onClick={e => e.stopPropagation()}>
           <h3>Edit Rating</h3>
           <p>
             Restaurant: <strong>{editModal.restaurant?.name}</strong>
@@ -28,8 +28,8 @@ const EditModal = ({ editModal, setEditModal, handleSaveRating }) => {
               max="5"
               step="0.1"
               value={editModal.newRating}
-              onChange={(e) =>
-                setEditModal((prev) => ({ ...prev, newRating: e.target.value }))
+              onChange={e =>
+                setEditModal(prev => ({ ...prev, newRating: e.target.value }))
               }
               placeholder="Enter rating"
             />
@@ -44,8 +44,8 @@ const EditModal = ({ editModal, setEditModal, handleSaveRating }) => {
                 setEditModal({
                   show: false,
                   restaurant: null,
-                  newRating: "",
-                  error: "",
+                  newRating: '',
+                  error: '',
                 })
               }
             >

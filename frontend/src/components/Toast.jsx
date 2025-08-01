@@ -21,7 +21,7 @@ const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
       zIndex: 1000,
       animation: 'slideIn 0.3s ease',
       maxWidth: '300px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     };
 
     switch (type) {
@@ -38,7 +38,13 @@ const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
 
   return (
     <div style={getToastStyles()}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <span>{message}</span>
         <button
           onClick={onClose}
@@ -48,7 +54,7 @@ const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
             color: 'white',
             cursor: 'pointer',
             marginLeft: '10px',
-            fontSize: '18px'
+            fontSize: '18px',
           }}
         >
           ×
@@ -58,4 +64,4 @@ const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
   );
 };
 
-export default Toast; 
+export default Toast;
