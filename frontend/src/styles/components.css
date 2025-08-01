@@ -2,7 +2,11 @@
 
 /* Card Styles */
 .card {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 100%
+  );
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
@@ -283,7 +287,8 @@
   margin-bottom: 24px;
 }
 
-.retry-btn, .reload-btn {
+.retry-btn,
+.reload-btn {
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
@@ -349,13 +354,13 @@
     width: 95%;
     padding: var(--spacing-lg);
   }
-  
+
   .toast {
     right: 10px;
     left: 10px;
     max-width: none;
   }
-} 
+}
 
 /* Responsive design */
 @media (max-width: 640px) {
@@ -363,15 +368,16 @@
     padding: 24px;
     margin: 20px;
   }
-  
+
   .error-actions {
     flex-direction: column;
   }
-  
-  .retry-btn, .reload-btn {
+
+  .retry-btn,
+  .reload-btn {
     width: 100%;
   }
-} 
+}
 
 /* HomePage Error Fallback Styles */
 .homepage-error {
@@ -461,17 +467,17 @@
   .homepage-error {
     padding: 20px;
   }
-  
+
   .error-card {
     padding: 24px;
   }
-  
+
   .error-card .error-actions {
     flex-direction: column;
   }
-  
+
   .error-card .retry-btn,
   .error-card .reload-btn {
     width: 100%;
   }
-} 
+}

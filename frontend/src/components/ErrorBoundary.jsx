@@ -10,13 +10,10 @@ const ErrorFallback = ({ error, resetErrorBoundary }) => {
           {error?.message || 'An unexpected error occurred'}
         </p>
         <div className="error-actions">
-          <button 
-            onClick={resetErrorBoundary}
-            className="retry-btn"
-          >
+          <button onClick={resetErrorBoundary} className="retry-btn">
             🔄 Try Again
           </button>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="reload-btn"
           >
@@ -39,7 +36,7 @@ const ErrorBoundary = ({ children }) => {
     // Log error to console for debugging
     console.error('Error caught by boundary:', error);
     console.error('Error info:', errorInfo);
-    
+
     // In a real app, you'd send this to an error reporting service
     // like Sentry, LogRocket, etc.
   };
@@ -58,4 +55,4 @@ const ErrorBoundary = ({ children }) => {
   );
 };
 
-export default ErrorBoundary; 
+export default ErrorBoundary;
