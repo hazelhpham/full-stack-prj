@@ -12,10 +12,10 @@ const SortDropdown = ({ sortValue, onSortChange }) => {
       <select
         id="sort-select"
         value={sortValue}
-        onChange={(e) => onSortChange(e.target.value)}
+        onChange={e => onSortChange(e.target.value)}
         className="sort-dropdown"
       >
-        {sortOptions.map((option) => (
+        {sortOptions.map(option => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -25,4 +25,4 @@ const SortDropdown = ({ sortValue, onSortChange }) => {
   );
 };
 
-export default SortDropdown; 
+export default SortDropdown;
