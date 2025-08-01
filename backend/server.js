@@ -24,10 +24,6 @@ app.use(express.json());
 // Routes
 app.use('/api/restaurants', require('./routes/restaurants'));
 
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Backend is running!' });
-});
-
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 }); 

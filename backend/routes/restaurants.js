@@ -3,15 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 
-// File path for data storage
 const DATA_FILE = path.join(__dirname, '../data/restaurants.json');
 
-// Ensure data directory exists
 const dataDir = path.dirname(DATA_FILE);
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
-
+//a simple in-memory + file-based caching mechanism.
 const loadRestaurants = () => {
   try {
     if (fs.existsSync(DATA_FILE)) {
@@ -57,7 +55,7 @@ const saveRestaurants = (restaurants) => {
   }
 };
 
-// Initialize restaurants from file
+//store all data in RAM once, and all future reads (like GET /) are fast 
 let restaurants = loadRestaurants();
 
 // GET all restaurants
@@ -102,7 +100,7 @@ router.post('/', (req, res) => {
     };
     
     restaurants.push(newRestaurant);
-    saveRestaurants(restaurants); // Save to file
+    saveRestaurants(restaurants);
     res.status(201).json(newRestaurant);
   } catch (error) {
     console.log(error)
