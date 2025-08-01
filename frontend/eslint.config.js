@@ -1,8 +1,8 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
   globalIgnores(['dist']),
@@ -24,6 +24,14 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Disable formatting rules that conflict with Prettier
+      indent: 'off',
+      quotes: 'off',
+      'comma-dangle': 'off',
+      semi: 'off',
+      'arrow-parens': 'off',
+      'object-curly-spacing': 'off',
+      'array-bracket-spacing': 'off',
     },
   },
-])
+]);
