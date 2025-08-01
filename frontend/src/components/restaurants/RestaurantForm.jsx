@@ -1,10 +1,12 @@
 import React, {useState, useCallback} from 'react'
 import { useNavigate } from 'react-router-dom';
-import { restaurantAPI, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../utils/api';
+import { useCreateRestaurant, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../utils/api';
 import Toast from '../Toast';
 
 const RestaurantForm = () => {
     const navigate = useNavigate()
+    const createRestaurantMutation = useCreateRestaurant();
+    
     const [restaurant, setRestaurant] = useState({
         name: '',
         type: '',
@@ -16,11 +18,7 @@ const RestaurantForm = () => {
     });
 
     const [errors, setErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
-    //initial type of this is success? 
-    //show is automatically set as false?
-
 
     const showToast = (message, type = 'success') => {
         setToast({ show: true, message, type });
@@ -28,8 +26,7 @@ const RestaurantForm = () => {
     const hideToast = () => {
         setToast({ show: false, message: '', type: 'success' });
     };
-
-    // HANDLE CHANGE OF FORM
+    
     const updateRestaurant = useCallback((field, value) => {
         setRestaurant(prev => ({ ...prev, [field]: value }));
         //IF THERE ARE ERRORS ---> CLEAR ALL FIELDS
@@ -37,6 +34,7 @@ const RestaurantForm = () => {
             setErrors(prev => ({ ...prev, [field]: '' }));
         }
     }, [errors]); //re-render when the type of error is a different type!
+    //This prevents the function from being recreated unnecessarily unless errors change.
 
     const validateForm = () => {
         const newErrors = {};
@@ -51,33 +49,30 @@ const RestaurantForm = () => {
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+        //return the keys of an object!
     };
+    
     const handleSubmitForm = async (e) => {
         e.preventDefault()
         if (!validateForm()) return;
-        setIsSubmitting(true)
         
         try { 
-            await restaurantAPI.create(restaurant);
+            await createRestaurantMutation.mutateAsync(restaurant);
             showToast(SUCCESS_MESSAGES.CREATED, 'success');
             setTimeout(() => {
                 navigate('/');
-            }, 1000); //automatically move to main page if its more than 1000s? 
+            }, 1000); //flow: accepted -> success -> redirect back to main page
         }
         catch(error){  
             const errorMessage = error.message || ERROR_MESSAGES.UNKNOWN_ERROR;
             showToast(errorMessage, 'error');
             setErrors({ submit: errorMessage });
         }
-        finally{
-            setIsSubmitting(false)
-        }
     }
     
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // In production, upload to your server/cloud storage
             const imageUrl = URL.createObjectURL(file);
             updateRestaurant('image', imageUrl);
         }
@@ -230,21 +225,19 @@ const RestaurantForm = () => {
                             type="button"
                             onClick={handleCancel}
                             className="btn btn-secondary"
-                            disabled={isSubmitting}
+                            disabled={createRestaurantMutation.isPending}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={createRestaurantMutation.isPending}
                             className="btn btn-primary"
                         >
-                            {isSubmitting ? 'Adding Restaurant...' : 'Add Restaurant'}
+                            {createRestaurantMutation.isPending ? 'Adding Restaurant...' : 'Add Restaurant'}
                         </button>
                     </div>
                 </form>
-
-                {/* Toast Notifications */}
                 {toast.show && (
                     <Toast
                         message={toast.message}

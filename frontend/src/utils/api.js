@@ -1,4 +1,3 @@
-// API Configuration
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/restaurants';
 
 const ERROR_MESSAGES = {
@@ -40,14 +39,12 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 };
 
-// Restaurant API functions
 export const restaurantAPI = {
   // Get all restaurants
   getAll: async () => {
     return await apiRequest('');
   },
 
-  // Get single restaurant
   getById: async (id) => {
     return await apiRequest(`/${id}`);
   },
@@ -82,6 +79,85 @@ export const restaurantAPI = {
       method: 'DELETE'
     });
   }
+};
+
+// React Query hooks
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+// Query keys
+export const restaurantKeys = {
+  all: ['restaurants'],
+  lists: () => [...restaurantKeys.all, 'list'],
+  list: (filters) => [...restaurantKeys.lists(), { filters }],
+  details: () => [...restaurantKeys.all, 'detail'],
+  detail: (id) => [...restaurantKeys.details(), id],
+};
+
+// Custom hooks
+export const useRestaurants = () => {
+  return useQuery({
+    queryKey: restaurantKeys.lists(),
+    queryFn: restaurantAPI.getAll,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useRestaurant = (id) => {
+  return useQuery({
+    queryKey: restaurantKeys.detail(id),
+    queryFn: () => restaurantAPI.getById(id),
+    enabled: !!id,
+  });
+};
+
+export const useCreateRestaurant = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: restaurantAPI.create,
+    onSuccess: () => {
+      // Invalidate and refetch restaurants list
+      queryClient.invalidateQueries({ queryKey: restaurantKeys.lists() });
+    },
+  });
+};
+
+export const useUpdateRestaurant = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, data }) => 
+      restaurantAPI.update(id, data),
+    onSuccess: (data, { id }) => {
+      queryClient.setQueryData(restaurantKeys.detail(id), data);
+      queryClient.invalidateQueries({ queryKey: restaurantKeys.lists() });
+    },
+  });
+};
+
+export const useUpdateRating = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, rating }) => 
+      restaurantAPI.updateRating(id, rating),
+    onSuccess: (data, { id }) => {
+      queryClient.setQueryData(restaurantKeys.detail(id), data);
+      queryClient.invalidateQueries({ queryKey: restaurantKeys.lists() });
+    },
+  });
+};
+
+export const useDeleteRestaurant = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: restaurantAPI.delete,
+    onSuccess: (_, id) => {
+      queryClient.removeQueries({ queryKey: restaurantKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: restaurantKeys.lists() });
+    },
+  });
 };
 
 export { ERROR_MESSAGES, SUCCESS_MESSAGES };

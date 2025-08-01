@@ -1,19 +1,57 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { ErrorBoundary } from 'react-error-boundary';
 import RestaurantList from "../components/restaurants/RestaurantList";
 import EditModal from "../components/EditModal";
 import DeleteModal from '../components/DeleteModal';
 import Toast from '../components/Toast';
+import SortDropdown from '../components/SortDropdown';
 import { searchRestaurants, initializeSearchIndex } from "../utils/search";
-import { restaurantAPI, ERROR_MESSAGES, SUCCESS_MESSAGES } from "../utils/api";
+import { sortRestaurants, parseSortValue } from "../utils/sort";
+import { 
+  useRestaurants, 
+  useUpdateRating, 
+  useDeleteRestaurant,
+  ERROR_MESSAGES, 
+  SUCCESS_MESSAGES 
+} from "../utils/api";
 
-const HomePage = () => {
+// Error fallback for HomePage
+const HomePageErrorFallback = ({ error, resetErrorBoundary }) => {
+  return (
+    <div className="homepage-error">
+      <div className="error-card">
+        <h2>⚠️ Restaurant List Error</h2>
+        <p>There was a problem loading the restaurant list.</p>
+        <p className="error-detail">{error?.message || 'Unknown error'}</p>
+        <div className="error-actions">
+          <button onClick={resetErrorBoundary} className="retry-btn">
+            🔄 Retry
+          </button>
+          <button onClick={() => window.location.reload()} className="reload-btn">
+            🔄 Reload Page
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const HomePageContent = () => {
   const navigate = useNavigate();
   
-  // State management
-  const [restaurants, setRestaurants] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // React Query hooks
+  const { 
+    data: restaurants = [], 
+    isLoading, 
+    error, 
+    refetch 
+  } = useRestaurants();
+  
+  const updateRatingMutation = useUpdateRating();
+  const deleteRestaurantMutation = useDeleteRestaurant();
+  
+  // Local state
   const [searchInput, setSearchInput] = useState("");
   const [editModal, setEditModal] = useState({ 
     show: false, 
@@ -27,6 +65,8 @@ const HomePage = () => {
     restaurantName: ''
   });
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [sortValue, setSortValue] = useState('name-asc');
+  
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
   };
@@ -34,32 +74,16 @@ const HomePage = () => {
     setToast({ show: false, message: '', type: 'success' });
   };
 
-  // API functions
-  const fetchRestaurants = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const data = await restaurantAPI.getAll(); //what is this? 
-      setRestaurants(data);
-      initializeSearchIndex(data); //why do we immediately have search index here? 
-    } catch (err) {
-      const errorMessage = err.message || ERROR_MESSAGES.UNKNOWN_ERROR;
-      setError(errorMessage);
-      showToast(errorMessage, 'error');
-    } finally {
-      setLoading(false);
+  // Initialize search index when restaurants data changes
+  React.useEffect(() => {
+    if (restaurants.length > 0) {
+      initializeSearchIndex(restaurants);
     }
-  };
-  //THIS IS FOR EDITING THE RATING
+  }, [restaurants]);
+
   const updateRestaurantRating = async (restaurantId, newRating) => {
     try {
-      const updatedRestaurant = await restaurantAPI.updateRating(restaurantId, newRating);
-      setRestaurants(prev =>
-        prev.map(restaurant =>
-          restaurant.id === updatedRestaurant.id ? updatedRestaurant : restaurant
-        )
-      );
+      await updateRatingMutation.mutateAsync({ id: restaurantId, rating: newRating });
       showToast(SUCCESS_MESSAGES.RATING_UPDATED, 'success');
       return true;
     } catch (err) {
@@ -71,8 +95,7 @@ const HomePage = () => {
 
   const deleteRestaurant = async (restaurantId) => {
     try {
-      await restaurantAPI.delete(restaurantId);
-      setRestaurants(prev => prev.filter(restaurant => restaurant.id !== restaurantId));
+      await deleteRestaurantMutation.mutateAsync(restaurantId);
       showToast(SUCCESS_MESSAGES.DELETED, 'success');
       return true;
     } catch (err) {
@@ -91,6 +114,7 @@ const HomePage = () => {
     navigate("/restaurants/add");
   };
 
+  //Open edit modal & initialize state
   const handleEdit = (restaurant) => {
     setEditModal({
       show: true,
@@ -99,7 +123,8 @@ const HomePage = () => {
       error: "",
     });
   };
-
+  
+  //Validate and save the edited rating
   const handleSaveRating = async () => {
     const rating = parseFloat(editModal.newRating);
     
@@ -137,36 +162,35 @@ const HomePage = () => {
     setDeleteModal({ show: false, restaurantId: null, restaurantName: '' });
   };
 
-  // Computed values
-//   const filteredRestaurants = searchInput 
-//     ? searchRestaurants(restaurants, searchInput) 
-//     : restaurants;
+  const handleSortChange = (newSortValue) => {
+    setSortValue(newSortValue);
+  };
 
-    const filteredRestaurants = useMemo(() => {
-        if (!searchInput.trim()) {
-          return restaurants;
-        }
-        return searchRestaurants(restaurants, searchInput);
-      }, [restaurants, searchInput]); // Dependencies
+  const filteredAndSortedRestaurants = useMemo(() => {
+    // First filter by search
+    let result = restaurants;
+    if (searchInput.trim()) {
+      result = searchRestaurants(restaurants, searchInput);
+    }
+    
+    // Then sort the filtered results
+    const { sortBy, sortOrder } = parseSortValue(sortValue);
+    return sortRestaurants(result, sortBy, sortOrder);
+  }, [restaurants, searchInput, sortValue]);
 
-  const hasSearchResults = filteredRestaurants.length > 0;
+  const hasSearchResults = filteredAndSortedRestaurants.length > 0;
   const isSearching = searchInput.trim().length > 0;
 
-  // Effects
-  useEffect(() => {
-    fetchRestaurants();
-  }, []);
-
   // Loading and error states
-  if (loading) {
+  if (isLoading) {
     return <div className="loading">Loading restaurants...</div>;
   }
 
   if (error) {
     return (
       <div className="error">
-        Error: {error}
-        <button onClick={fetchRestaurants} className="retry-btn">
+        Error: {error?.message || 'An unknown error occurred'}
+        <button onClick={() => refetch()} className="retry-btn">
           Retry
         </button>
       </div>
@@ -184,14 +208,20 @@ const HomePage = () => {
         </button>
       </div>
 
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search restaurants..."
-        onChange={handleSearchChange}
-        value={searchInput}
-        className="search-input"
-      />
+      {/* Search and Sort Controls */}
+      <div className="controls-container">
+        <input
+          type="text"
+          placeholder="Search restaurants..."
+          onChange={handleSearchChange}
+          value={searchInput}
+          className="search-input"
+        />
+        <SortDropdown 
+          sortValue={sortValue}
+          onSortChange={handleSortChange}
+        />
+      </div>
 
       {/* Restaurant Grid */}
       <div className="restaurant-grid">
@@ -201,7 +231,7 @@ const HomePage = () => {
           </div>
         ) : (
           <RestaurantList
-            restaurants={filteredRestaurants}
+            restaurants={filteredAndSortedRestaurants}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
             editModal={editModal}
@@ -239,6 +269,14 @@ const HomePage = () => {
         />
       )}
     </div>
+  );
+};
+
+const HomePage = () => {
+  return (
+    <ErrorBoundary FallbackComponent={HomePageErrorFallback}>
+      <HomePageContent />
+    </ErrorBoundary>
   );
 };
 
