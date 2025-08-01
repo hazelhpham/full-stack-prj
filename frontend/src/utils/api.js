@@ -1,18 +1,19 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5050/api/restaurants';
+const API_BASE =
+  import.meta.env.VITE_API_URL || 'http://localhost:5050/api/restaurants';
 
 const ERROR_MESSAGES = {
   NETWORK_ERROR: 'Network error. Please check your connection.',
   SERVER_ERROR: 'Server error. Please try again later.',
   NOT_FOUND: 'Restaurant not found.',
   VALIDATION_ERROR: 'Please check your input and try again.',
-  UNKNOWN_ERROR: 'An unexpected error occurred.'
+  UNKNOWN_ERROR: 'An unexpected error occurred.',
 };
 
 const SUCCESS_MESSAGES = {
   CREATED: 'Restaurant created successfully!',
   UPDATED: 'Restaurant updated successfully!',
   DELETED: 'Restaurant deleted successfully!',
-  RATING_UPDATED: 'Rating updated successfully!'
+  RATING_UPDATED: 'Rating updated successfully!',
 };
 
 const apiRequest = async (endpoint, options = {}) => {
@@ -20,9 +21,9 @@ const apiRequest = async (endpoint, options = {}) => {
     const response = await fetch(`${API_BASE}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers
+        ...options.headers,
       },
-      ...options
+      ...options,
     });
 
     if (!response.ok) {
@@ -45,15 +46,15 @@ export const restaurantAPI = {
     return await apiRequest('');
   },
 
-  getById: async (id) => {
+  getById: async id => {
     return await apiRequest(`/${id}`);
   },
 
   // Create new restaurant
-  create: async (restaurantData) => {
+  create: async restaurantData => {
     return await apiRequest('', {
       method: 'POST',
-      body: JSON.stringify(restaurantData)
+      body: JSON.stringify(restaurantData),
     });
   },
 
@@ -61,7 +62,7 @@ export const restaurantAPI = {
   update: async (id, restaurantData) => {
     return await apiRequest(`/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(restaurantData)
+      body: JSON.stringify(restaurantData),
     });
   },
 
@@ -69,16 +70,16 @@ export const restaurantAPI = {
   updateRating: async (id, rating) => {
     return await apiRequest(`/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ rating })
+      body: JSON.stringify({ rating }),
     });
   },
 
   // Delete restaurant
-  delete: async (id) => {
+  delete: async id => {
     return await apiRequest(`/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     });
-  }
+  },
 };
 
 // React Query hooks
@@ -88,9 +89,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 export const restaurantKeys = {
   all: ['restaurants'],
   lists: () => [...restaurantKeys.all, 'list'],
-  list: (filters) => [...restaurantKeys.lists(), { filters }],
+  list: filters => [...restaurantKeys.lists(), { filters }],
   details: () => [...restaurantKeys.all, 'detail'],
-  detail: (id) => [...restaurantKeys.details(), id],
+  detail: id => [...restaurantKeys.details(), id],
 };
 
 // Custom hooks
@@ -102,7 +103,7 @@ export const useRestaurants = () => {
   });
 };
 
-export const useRestaurant = (id) => {
+export const useRestaurant = id => {
   return useQuery({
     queryKey: restaurantKeys.detail(id),
     queryFn: () => restaurantAPI.getById(id),
@@ -112,7 +113,7 @@ export const useRestaurant = (id) => {
 
 export const useCreateRestaurant = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: restaurantAPI.create,
     onSuccess: () => {
@@ -124,10 +125,9 @@ export const useCreateRestaurant = () => {
 
 export const useUpdateRestaurant = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }) => 
-      restaurantAPI.update(id, data),
+    mutationFn: ({ id, data }) => restaurantAPI.update(id, data),
     onSuccess: (data, { id }) => {
       queryClient.setQueryData(restaurantKeys.detail(id), data);
       queryClient.invalidateQueries({ queryKey: restaurantKeys.lists() });
@@ -137,10 +137,9 @@ export const useUpdateRestaurant = () => {
 
 export const useUpdateRating = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, rating }) => 
-      restaurantAPI.updateRating(id, rating),
+    mutationFn: ({ id, rating }) => restaurantAPI.updateRating(id, rating),
     onSuccess: (data, { id }) => {
       queryClient.setQueryData(restaurantKeys.detail(id), data);
       queryClient.invalidateQueries({ queryKey: restaurantKeys.lists() });
@@ -150,7 +149,7 @@ export const useUpdateRating = () => {
 
 export const useDeleteRestaurant = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: restaurantAPI.delete,
     onSuccess: (_, id) => {
