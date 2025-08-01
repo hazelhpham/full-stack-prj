@@ -7,9 +7,10 @@ A full-stack web application for managing restaurant information with a modern R
 ### Frontend (React + Vite)
 - **Framework**: React 19 with Vite for fast development
 - **Routing**: React Router DOM for navigation
+- **State Management**: React Query for server state management
 - **Styling**: CSS with modern responsive design
-- **State Management**: React hooks (useState, useEffect, useMemo)
-- **API Communication**: Fetch API with centralized error handling
+- **Error Handling**: React Error Boundary for graceful error handling
+- **Code Quality**: ESLint + Prettier for consistent formatting
 
 ### Backend (Node.js + Express)
 - **Runtime**: Node.js with Express framework
@@ -35,16 +36,22 @@ full-stack-prj/
 │   │   │   ├── EditModal.jsx   # Rating edit modal
 │   │   │   ├── DeleteModal.jsx # Delete confirmation
 │   │   │   ├── Toast.jsx       # Notification system
-│   │   │   └── SearchFilters.jsx
+│   │   │   ├── ErrorBoundary.jsx # Error handling
+│   │   │   ├── SearchFilters.jsx
+│   │   │   └── SortDropdown.jsx
 │   │   ├── pages/
 │   │   │   ├── HomePage.jsx    # Main restaurant list
 │   │   │   └── AddRestaurantPage.jsx
 │   │   ├── utils/
-│   │   │   ├── api.js          # API communication layer
+│   │   │   ├── api.js          # API communication + React Query hooks
 │   │   │   ├── search.js       # Search functionality
+│   │   │   ├── sort.js         # Sorting algorithms
 │   │   │   └── rating.jsx      # Rating utilities
+│   │   ├── styles/             # Modular CSS files
 │   │   ├── App.jsx             # Main app component
-│   │   └── main.jsx            # Entry point
+│   │   └── main.jsx            # Entry point with React Query setup
+│   ├── .prettierrc            # Prettier configuration
+│   ├── eslint.config.js       # ESLint configuration
 │   └── package.json
 └── README.md
 ```
@@ -57,6 +64,7 @@ full-stack-prj/
 - **Edit Ratings**: Inline rating updates with modal interface
 - **Delete Restaurants**: Confirmation modal for safe deletion
 - **Search & Filter**: Real-time search across restaurant names, types, and locations
+- **Advanced Sorting**: Multiple sort options (name, rating, location, type, price)
 
 ### User Experience
 - **Responsive Design**: Works on desktop, tablet, and mobile
@@ -64,8 +72,10 @@ full-stack-prj/
 - **Loading States**: Visual feedback during API calls
 - **Error Handling**: Graceful error handling with retry options
 - **Search Index**: Optimized search with instant results
+- **Error Boundaries**: Robust error handling with user-friendly messages
 
 ### Data Management
+- **React Query Integration**: Automatic caching, background updates, and optimistic UI
 - **Persistent Storage**: JSON file-based data persistence
 - **Real-time Updates**: Immediate UI updates after operations
 - **Data Validation**: Input validation on both frontend and backend
@@ -91,6 +101,20 @@ npm start    # Production mode
 cd frontend
 npm install
 npm run dev  # Starts Vite dev server on port 3000
+```
+
+### Development Commands
+```bash
+# Linting and formatting
+npm run lint          # Check for ESLint errors
+npm run lint:fix      # Fix ESLint errors automatically
+npm run format        # Format code with Prettier
+npm run format:check  # Check if code is formatted
+
+# Development
+npm run dev           # Start development server
+npm run build         # Build for production
+npm run preview       # Preview production build
 ```
 
 ### Environment Configuration
@@ -137,10 +161,17 @@ PUT /api/restaurants/1
 
 ## 🔄 Data Flow
 
+### React Query Integration
+- **Automatic Caching**: 5-minute stale time for queries
+- **Background Updates**: Data refreshes automatically
+- **Optimistic Updates**: UI updates immediately, then syncs with server
+- **Error Retry**: Automatic retry logic for failed requests
+- **Cache Invalidation**: Lists update when data changes
+
 ### Frontend → Backend Communication
-1. **API Layer** (`utils/api.js`): Centralized API functions
+1. **React Query Hooks**: Centralized data fetching and mutations
 2. **Error Handling**: Consistent error messages and network error handling
-3. **State Management**: React hooks for local state management
+3. **Loading States**: Automatic loading indicators
 4. **Real-time Updates**: Immediate UI updates after successful operations
 
 ### Backend Data Management
@@ -157,6 +188,7 @@ PUT /api/restaurants/1
 - **Modal Dialogs**: Non-intrusive edit and delete confirmations
 - **Toast Notifications**: Non-blocking user feedback
 - **Loading States**: Visual feedback during operations
+- **Error Boundaries**: Graceful error handling with retry options
 
 ### Component Architecture
 - **Reusable Components**: Modular component structure
@@ -169,19 +201,31 @@ PUT /api/restaurants/1
 ### Search Features
 - **Multi-field Search**: Search across name, type, location
 - **Real-time Results**: Instant search results as you type
-- **Search Index**: Optimized search performance
+- **Search Index**: Optimized search performance with indexing
+- **Fuzzy Search**: Advanced search with partial matching
 - **No Results Handling**: Clear messaging when no matches found
 
 ### Search Algorithm
 ```javascript
-// Search across multiple fields
-const searchRestaurants = (restaurants, query) => {
-  const searchTerm = query.toLowerCase();
-  return restaurants.filter(restaurant => 
-    restaurant.name.toLowerCase().includes(searchTerm) ||
-    restaurant.type.toLowerCase().includes(searchTerm) ||
-    restaurant.location.toLowerCase().includes(searchTerm)
-  );
+// Optimized search with indexing
+const searchRestaurants = (restaurants, searchTerm) => {
+  if (!searchTerm.trim()) return restaurants;
+  
+  const term = searchTerm.toLowerCase();
+  const words = term.split(/\s+/).filter(word => word.length >= 2);
+  
+  // Use index for faster search
+  const matchingIndices = new Set();
+  
+  words.forEach(word => {
+    if (searchIndex.has(word)) {
+      searchIndex.get(word).forEach(index => {
+        matchingIndices.add(index);
+      });
+    }
+  });
+  
+  return Array.from(matchingIndices).map(index => restaurants[index]);
 };
 ```
 
@@ -196,6 +240,8 @@ const searchRestaurants = (restaurants, query) => {
 
 ### Code Quality
 - **ESLint**: Code linting and formatting
+- **Prettier**: Automatic code formatting
+- **React Query DevTools**: Development debugging tools
 - **Component Structure**: Organized component hierarchy
 - **Error Boundaries**: Graceful error handling
 - **Performance**: Optimized rendering with useMemo
@@ -216,6 +262,7 @@ const searchRestaurants = (restaurants, query) => {
 ## 📊 Performance Optimizations
 
 ### Frontend Optimizations
+- **React Query Caching**: Automatic caching and background updates
 - **Memoization**: useMemo for expensive computations
 - **Lazy Loading**: Component lazy loading where appropriate
 - **Search Index**: Pre-computed search index for fast queries
@@ -239,7 +286,6 @@ const searchRestaurants = (restaurants, query) => {
 - **Input Sanitization**: Additional input sanitization
 - **Authentication**: Add user authentication if needed
 
-
 ## 📈 Future Enhancements
 
 ### Potential Improvements
@@ -255,7 +301,7 @@ const searchRestaurants = (restaurants, query) => {
 ## 🤝 Contributing
 
 ### Development Guidelines
-1. **Code Style**: Follow existing code patterns
+1. **Code Style**: Follow ESLint and Prettier configurations
 2. **Component Structure**: Maintain modular component design
 3. **Error Handling**: Always include proper error handling
 4. **Testing**: Test new features thoroughly
@@ -267,4 +313,4 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-**Built with ❤️ using React, Node.js, and Express** 
+**Built with ❤️ using React, Node.js, Express, and React Query** 
