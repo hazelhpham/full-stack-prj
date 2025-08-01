@@ -1,5 +1,4 @@
 import React from 'react';
-import './AddRestaurantPage.css';
 import RestaurantForm from '../components/restaurants/RestaurantForm';
 
 const AddRestaurantPage = () => {

@@ -2,7 +2,6 @@ import React from 'react'
 
 const DeleteModal = ({handleDeleteCancel, deleteRestaurant, deleteModal, setDeleteModal}) => {  const handleDeleteConfirm = async () => {
     const success = await deleteRestaurant(deleteModal.restaurantId);
-    
     if (!success) {
       alert('Failed to delete restaurant. Please try again.');
     }

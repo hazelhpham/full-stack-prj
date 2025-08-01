@@ -1,0 +1,16 @@
+/* Main Styles Index - Import all organized CSS files */
+
+/* Global styles and CSS variables */
+@import './global.css';
+
+/* Layout styles */
+@import './layout.css';
+
+/* Component styles */
+@import './components.css';
+
+/* Restaurant-specific styles */
+@import './restaurant.css';
+
+/* Form styles */
+@import './forms.css'; 
